@@ -4,7 +4,7 @@ const config = require('../config/database');
 const TimetableSchema = mongoose.Schema ({
   _id: mongoose.Schema.Types.ObjectId,
   day : Number,
-  hour : Number,
+  hour : String,
   subject : String,
   room : String,
   __v: {type: Number, select: false}

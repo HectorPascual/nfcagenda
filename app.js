@@ -42,19 +42,18 @@ http.createServer(function (req, res) {
   // /auth?1232424
   switch (url_def) {
     case "/auth":
-      uid = url.substring(url.indexOf('?')+1,url.length);
-      Student.find({uid : /^uid/} ,(err, name) => {
+      value = url.substring(url.indexOf('?')+1,url.length);
+      name = "uid"
+      var query = {};
+      query[name] = value;
+      Student.find(query ,(err, name) => {
         if(err) {
-
-          console.log(uid)
           resdb = {success: "false", msg: name}
           const responseBody = { headers, method, url, resdb }
           res.write(JSON.stringify(responseBody),function(err) {
             res.end();
           });
         } else {
-          console.log(uid)
-
           resdb = {success: "true", msg: name}
           const responseBody = { headers, method, url, resdb}
           res.write(JSON.stringify(responseBody),function(err) {
@@ -64,52 +63,74 @@ http.createServer(function (req, res) {
 
     break;
     case "/tasks":
-      /*test = {
-        test: '1'
-      }*/
-
-    /*  var user = new Test({
-          _id: new mongoose.Types.ObjectId(),
-          user: "Hector"
-      });
-
-      user.save(function(err) {
-        if (err) throw err;
-        else console.log("added succesfully")
-      })
-
-*/
-      Test.find({user : "Hector"}, (err, user) => {
+      value = url.substring(url.indexOf('?')+1,url.length);
+      name = "subject"
+      var query = {};
+      query[name] = value;
+      Task.find(query ,(err, name) => {
         if(err) {
-
-          console.log(user)
-          resdb = {success: "false", msg: user}
+          resdb = {success: "false", msg: name}
           const responseBody = { headers, method, url, resdb }
           res.write(JSON.stringify(responseBody),function(err) {
             res.end();
           });
         } else {
-          console.log(user)
+          resdb = {success: "true", msg: name}
+          const responseBody = { headers, method, url, resdb}
+          res.write(JSON.stringify(responseBody),function(err) {
+            res.end();
+          })
+      }})
 
-          resdb = {success: "true", msg: user}
+      break;
+    case "/marks":
+      value = url.substring(url.indexOf('?')+1,url.length);
+      name = "subject"
+      var query = {};
+      query[name] = value;
+      Mark.find(query, (err, name) => {
+        if(err) {
+          resdb = {success: "false", msg: name}
+          const responseBody = { headers, method, url, resdb }
+          res.write(JSON.stringify(responseBody),function(err) {
+            res.end();
+          });
+        } else {
+          console.log(value)
+          resdb = {success: "true", msg: name}
           const responseBody = { headers, method, url, resdb}
           res.write(JSON.stringify(responseBody),function(err) {
             res.end();
           });
         }
       });
-
       break;
-    case "/test2":
-      test = {
-        test: '2'
+    case "/timetables":
+    value = url.substring(url.indexOf('?')+1,url.length);
+    name = "room"
+    var query = {};
+    query[name] = value;
+    Timetable.find(query, (err, name) => {
+      if(err) {
+        resdb = {success: "false", msg: name}
+        const responseBody = { headers, method, url, resdb }
+        res.write(JSON.stringify(responseBody),function(err) {
+          res.end();
+        });
+      } else {
+        resdb = {success: "true", msg: name}
+        const responseBody = { headers, method, url, resdb}
+        res.write(JSON.stringify(responseBody),function(err) {
+          res.end();
+        });
       }
-      break;
+    });
+    break;
     default:
-      test = {
-        test: '0'
-      }
+      res.status(404).send("Oh uh, something went wrong");
+    break;
   }
+
 
   //res.write(JSON.stringify(responseBody));
   // Note: the 2 lines above could be replaced with this next one:
