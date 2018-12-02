@@ -1,7 +1,6 @@
 var http = require('http');
 var mongoose = require('mongoose');
 const config = require('./config/database');
-var Test = require('./models/test_model');
 var Mark = require('./models/mark_model');
 var Task = require('./models/task_model');
 var Timetable = require('./models/timetable_model');
