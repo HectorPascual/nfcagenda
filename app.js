@@ -317,7 +317,7 @@ http.createServer(function (req, res) {
 
   // MANAGE DB QUERIES
 
-}).listen(3000);
+}).listen(process.env.PORT || 3000);
 
 function formatDate(date) {
     var d = new Date(date),
