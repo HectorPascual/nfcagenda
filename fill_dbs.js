@@ -31,7 +31,7 @@ dbo.createCollection("students", function(err, res) {
   console.log("Se ha creado la colección students!");
   db.close();
 });
-
+/*
   //------------------Insert--------------------------
 
     var myobj = [
@@ -80,48 +80,48 @@ dbo.collection("tasks").insertMany(myobj, function(err, res) {
   console.log("Se ha insertado correctamente!");
   db.close();
 });
-
+*/
 //---------------------------InsertTimetables---------------------------
 
 var dbo = db.db("mydb");
 var myobj = [
 
-  { uid: 'ABC456', day: 'Tue', hour: '08:00:00', subject: 'Lab DSBM', room: 'C5-S101A'},
-  { uid: 'DEF123', day: 'Thu', hour: '10:00:00', subject: 'PSAVC', room: 'A4-104'},
-  { uid: 'GHI789', day: 'Thu', hour: '10:00:00', subject: 'PSAVC', room: 'A4-104'},
-  { uid: 'JKL012', day: 'Tue', hour: '10:00:00', subject: 'PSAVC', room: 'A4-104'},
-  { uid: 'MNO345', day: 'Tue', hour: '08:00:00', subject: 'Lab DSBM', room: 'C5-S101A'},
+  { uid: 'ABC456', day: 'Tue', day_number: 2, hour: '08:00', subject: 'Lab DSBM', room: 'C5-S101A'},
+  { uid: 'DEF123', day: 'Thu', day_number: 4, hour: '10:00', subject: 'PSAVC', room: 'A4-104'},
+  { uid: 'GHI789', day: 'Thu', day_number: 4, hour: '10:00', subject: 'PSAVC', room: 'A4-104'},
+  { uid: 'JKL012', day: 'Tue', day_number: 2, hour: '10:00', subject: 'PSAVC', room: 'A4-104'},
+  { uid: 'MNO345', day: 'Tue', day_number: 2, hour: '08:00', subject: 'Lab DSBM', room: 'C5-S101A'},
 
-  { uid: 'ABC456', day: 'Thu', hour: '10:00:00', subject: 'PSAVC', room: 'A4-104'},
-  { uid: 'DEF123', day: 'Wed', hour: '15:00:00', subject: 'Lab PBE', room: 'C3-S103'},
-  { uid: 'GHI789', day: 'Thu', hour: '08:00:00', subject: 'PBE', room: 'A3-001'},
-  { uid: 'JKL012', day: 'Thu', hour: '10:00:00', subject: 'PSAVC', room: 'A4-104'},
-  { uid: 'MNO345', day: 'Tue', hour: '10:00:00', subject: 'PSAVC', room: 'A4-104'},
+  { uid: 'ABC456', day: 'Thu', day_number: 4, hour: '10:00', subject: 'PSAVC', room: 'A4-104'},
+  { uid: 'DEF123', day: 'Wed', day_number: 3, hour: '15:00', subject: 'Lab PBE', room: 'C3-S103'},
+  { uid: 'GHI789', day: 'Thu', day_number: 4, hour: '08:00', subject: 'PBE', room: 'A3-001'},
+  { uid: 'JKL012', day: 'Thu', day_number: 4, hour: '10:00', subject: 'PSAVC', room: 'A4-104'},
+  { uid: 'MNO345', day: 'Tue', day_number: 2, hour: '10:00', subject: 'PSAVC', room: 'A4-104'},
 
-  { uid: 'ABC456', day: 'Tue', hour: '10:00:00', subject: 'PSAVC', room: 'A4-104'},
-  { uid: 'DEF123', day: 'Tue', hour: '08:00:00', subject: 'Lab DSBM', room: 'C5-S101A'},
-  { uid: 'GHI789', day: 'Tue', hour: '08:00:00', subject: 'Lab DSBM', room: 'C5-S101A'},
-  { uid: 'JKL012', day: 'Thu', hour: '08:00:00', subject: 'PBE', room: 'A3-001'},
-  { uid: 'MNO345', day: 'Thu', hour: '10:00:00', subject: 'PSAVC', room: 'A4-104'},
+  { uid: 'ABC456', day: 'Tue', day_number: 2, hour: '10:00', subject: 'PSAVC', room: 'A4-104'},
+  { uid: 'DEF123', day: 'Tue', day_number: 2, hour: '08:00', subject: 'Lab DSBM', room: 'C5-S101A'},
+  { uid: 'GHI789', day: 'Tue', day_number: 2, hour: '08:00', subject: 'Lab DSBM', room: 'C5-S101A'},
+  { uid: 'JKL012', day: 'Thu', day_number: 4, hour: '08:00', subject: 'PBE', room: 'A3-001'},
+  { uid: 'MNO345', day: 'Thu', day_number: 4, hour: '10:00', subject: 'PSAVC', room: 'A4-104'},
 
-  { uid: 'ABC456', day: 'Thu', hour: '08:00:00', subject: 'PBE', room: 'A3-001'},
-  { uid: 'DEF123', day: 'Thu', hour: '08:00:00', subject: 'PBE', room: 'A3-001'},
-  { uid: 'GHI789', day: 'Tue', hour: '10:00:00', subject: 'PSAVC', room: 'A4-104'},
-  { uid: 'JKL012', day: 'Tue', hour: '08:00:00', subject: 'Lab DSBM', room: 'C5-S101A'},
-  { uid: 'MNO345', day: 'Wed', hour: '15:00:00', subject: 'Lab PBE', room: 'C3-S103'},
+  { uid: 'ABC456', day: 'Thu', day_number: 4, hour: '08:00', subject: 'PBE', room: 'A3-001'},
+  { uid: 'DEF123', day: 'Thu', day_number: 4, hour: '08:00', subject: 'PBE', room: 'A3-001'},
+  { uid: 'GHI789', day: 'Tue', day_number: 2, hour: '10:00', subject: 'PSAVC', room: 'A4-104'},
+  { uid: 'JKL012', day: 'Tue', day_number: 2, hour: '08:00', subject: 'Lab DSBM', room: 'C5-S101A'},
+  { uid: 'MNO345', day: 'Wed', day_number: 3, hour: '15:00', subject: 'Lab PBE', room: 'C3-S103'},
 
-  { uid: 'ABC456', day: 'Wed', hour: '15:00:00', subject: 'Lab PBE', room: 'C3-S103'},
-  { uid: 'DEF123', day: 'Tue', hour: '10:00:00', subject: 'PSAVC', room: 'A4-104'},
-  { uid: 'GHI789', day: 'Wed', hour: '15:00:00', subject: 'Lab PBE', room: 'C3-S103'},
-  { uid: 'JKL012', day: 'Wed', hour: '15:00:00', subject: 'Lab PBE', room: 'C3-S103'},
-  { uid: 'MNO345', day: 'Thu', hour: '08:00:00', subject: 'PBE', room: 'A3-001'}
+  { uid: 'ABC456', day: 'Wed', day_number: 3, hour: '15:00', subject: 'Lab PBE', room: 'C3-S103'},
+  { uid: 'DEF123', day: 'Tue', day_number: 2, hour: '10:00', subject: 'PSAVC', room: 'A4-104'},
+  { uid: 'GHI789', day: 'Wed', day_number: 3, hour: '15:00', subject: 'Lab PBE', room: 'C3-S103'},
+  { uid: 'JKL012', day: 'Wed', day_number: 3, hour: '15:00', subject: 'Lab PBE', room: 'C3-S103'},
+  { uid: 'MNO345', day: 'Thu', day_number: 4, hour: '08:00', subject: 'PBE', room: 'A3-001'}
 ];
 dbo.collection("timetables").insertMany(myobj, function(err, res) {
   if (err) throw err;
   console.log("Se ha insertado correctamente!");
   db.close();
 });
-
+/*
 //---------------------------InsertMarks---------------------------
 
 var dbo = db.db("mydb");
@@ -156,5 +156,5 @@ dbo.collection("marks").insertMany(myobj, function(err, res) {
   console.log("Se ha insertado correctamente!");
   db.close();
 });
-
+*/
 });

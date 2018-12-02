@@ -3,7 +3,8 @@ const config = require('../config/database');
 // User Schema
 const TimetableSchema = mongoose.Schema ({
   _id: mongoose.Schema.Types.ObjectId,
-  day : Number,
+  day : String,
+  day_number: {type: Number, select: false},
   hour : String,
   subject : String,
   room : String,
