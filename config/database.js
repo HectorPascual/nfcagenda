@@ -1,5 +1,5 @@
 module.exports = {
   // configure the code below with your username, password and mlab database information
-  database: 'mongodb://<user>:<admin1>@ds147450.mlab.com:47450/pbe-project',    //dev
+  database: 'mongodb://hector:admin1@ds147181.mlab.com:47181/pbe',    //dev
   secret: 'yoursecret'
 }
