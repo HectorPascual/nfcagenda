@@ -7,6 +7,9 @@ var Task = require('./models/task_model');
 var Timetable = require('./models/timetable_model');
 var Student = require('./models/student_model');
 
+var uid = null;
+var i
+
 mongoose.connect(config.database, { useMongoClient: true});
 // On Connection
 mongoose.connection.on('connected', () => {
@@ -37,37 +40,58 @@ http.createServer(function (req, res) {
 
   res.writeHead(200, {'Content-Type': 'application/json'})
   url_def = url.substring(0, url.indexOf('?'));
+  array = url.substring(url.indexOf('?')+1,url.length).split("&");
+  //for(array.length) --> value = array[i].substring(url.indexOf('=')+1,url.indexOf('='));
   console.log(url_def)
+  console.log(array)
 
-  // /auth?1232424
   switch (url_def) {
     case "/auth":
-      value = url.substring(url.indexOf('?')+1,url.length);
-      name = "uid"
-      var query = {};
-      query[name] = value;
-      Student.find(query ,(err, name) => {
-        if(err) {
-          resdb = {success: "false", msg: name}
-          const responseBody = { headers, method, url, resdb }
-          res.write(JSON.stringify(responseBody),function(err) {
-            res.end();
-          });
-        } else {
-          resdb = {success: "true", msg: name}
-          const responseBody = { headers, method, url, resdb}
-          res.write(JSON.stringify(responseBody),function(err) {
-            res.end();
-          })
-      }})
-
+      if(uid == null){
+        value = url.substring(url.indexOf('?')+1,url.length);
+        console.log(uid)
+        name = "uid"
+        var query = {};
+        query[name] = value;
+        Student.find(query ,(err, name) => {
+          if(err) {
+            resdb = {success: "false", msg: name}
+            const responseBody = { headers, method, url, resdb }
+            res.write(JSON.stringify(responseBody),function(err) {
+              res.end();
+            });
+          } else {
+            uid = value;
+            res.write(JSON.stringify(name),function(err) {
+              res.end();
+            })
+        }})
+      }
+      else{
+        console.log("Ya has iniciado sesión!")
+      }
     break;
+
+    case "/logout":
+      uid = null
+      console.log(uid)
+    break;
+
     case "/tasks":
-      value = url.substring(url.indexOf('?')+1,url.length);
-      name = "subject"
+    for (i = 0; i < array.length; i++){
+      
+      var values = array[i].split("=");
+      console.log(values)
+      if(values[0])
+      var field = values[0]
+      console.log(field)
+      var value = values[1]
+      console.log(value)
       var query = {};
-      query[name] = value;
-      Task.find(query ,(err, name) => {
+      query[field] = value;
+    }
+    //  find({published: true}).sort({'date': -1}).limit(20);
+      var dbquery = Task.find(query ,(err, name) => {
         if(err) {
           resdb = {success: "false", msg: name}
           const responseBody = { headers, method, url, resdb }
@@ -75,14 +99,11 @@ http.createServer(function (req, res) {
             res.end();
           });
         } else {
-          resdb = {success: "true", msg: name}
-          const responseBody = { headers, method, url, resdb}
-          res.write(JSON.stringify(responseBody),function(err) {
+          res.write(JSON.stringify(name),function(err) {
             res.end();
           })
       }})
-
-      break;
+    break;
     case "/marks":
       value = url.substring(url.indexOf('?')+1,url.length);
       name = "subject"
