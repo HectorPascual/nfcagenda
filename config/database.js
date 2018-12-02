@@ -1,6 +1,5 @@
 module.exports = {
   // configure the code below with your username, password and mlab database information
-  //database: 'mongodb://<username>:<password>@ds12226.mlab.com:12226/meanauthapp',   //prod
-  database: 'mongodb://localhost:27017/mydb',    //dev
+  database: 'mongodb://<user>:<admin1>@ds147450.mlab.com:47450/pbe-project',    //dev
   secret: 'yoursecret'
 }
