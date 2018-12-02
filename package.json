@@ -4,7 +4,7 @@
   "description": "pbe project",
   "main": "app.js",
   "dependencies": {
-    "mongoose": "^5.3.12"
+    "mongoose": "^5.3.14"
   },
   "devDependencies": {},
   "scripts": {
