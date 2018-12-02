@@ -78,31 +78,63 @@ http.createServer(function (req, res) {
     break;
 
     case "/tasks":
-    for (i = 0; i < array.length; i++){
-      
-      var values = array[i].split("=");
-      console.log(values)
-      if(values[0])
-      var field = values[0]
-      console.log(field)
-      var value = values[1]
-      console.log(value)
+      var limit = 0;
+      var gt,lt,lte,gte;
       var query = {};
-      query[field] = value;
-    }
-    //  find({published: true}).sort({'date': -1}).limit(20);
-      var dbquery = Task.find(query ,(err, name) => {
-        if(err) {
-          resdb = {success: "false", msg: name}
-          const responseBody = { headers, method, url, resdb }
-          res.write(JSON.stringify(responseBody),function(err) {
-            res.end();
-          });
-        } else {
-          res.write(JSON.stringify(name),function(err) {
-            res.end();
-          })
-      }})
+      for (i = 0; i < array.length; i++){
+
+        var values = array[i].split("=");
+
+      //  console.log(values)
+        var field = values[0]
+      //  console.log(field)
+        var value = values[1]
+      //  console.log(value)
+        option = field.substring(field.indexOf('[')+1,field.indexOf(']'))
+        if(value == "now") value = formatDate(new Date())
+        if(field=="limit"){
+          limit = value;
+        }
+        else if (option.indexOf("gte") >= 0) {
+          var gtefield = field
+          gte = value;
+        }
+        else if (option.indexOf("gt") >= 0) {
+          var gtfield = field
+          gt = value;
+        }
+        else if (option.indexOf("lte") >= 0) {
+          var ltefield = field
+          lte = value;
+        }
+        else if (option.indexOf("lt") >= 0) {
+          var ltfield = field
+          lt = value;
+        }
+        else{
+          query[field] = value;
+          console.log(query)
+        }
+      }
+      //  find({published: true}).sort({'date': -1}).limit(20);
+        var dbquery = Task.find(query ,(err, name) => {
+          if(err) {
+            resdb = {success: "false", msg: name}
+            const responseBody = { headers, method, url, resdb }
+            res.write(JSON.stringify(responseBody),function(err) {
+              res.end();
+            });
+          } else {
+            res.write(JSON.stringify(name),function(err) {
+              res.end();
+            })
+        }})
+        if (limit) dbquery.limit(limit)
+        if (gt) dbquery.where(gtfield.substring(0,gtfield.indexOf('['))).gt(gt).sort({date: 1})
+        if (lt) dbquery.where(ltfield.substring(0,ltfield.indexOf('['))).lt(lt).sort({date: 1})
+        if (gte) dbquery.where(gtefield.substring(0,gtefield.indexOf('['))).gte(gte).sort({date: 1})
+        if (lte) dbquery.where(ltefield.substring(0,ltefield.indexOf('['))).lte(lte).sort({date: 1})
+
     break;
     case "/marks":
       value = url.substring(url.indexOf('?')+1,url.length);
@@ -160,4 +192,17 @@ http.createServer(function (req, res) {
   // MANAGE DB QUERIES
 
 }).listen(3000);
+
+function formatDate(date) {
+    var d = new Date(date),
+        month = '' + (d.getMonth() + 1),
+        day = '' + d.getDate(),
+        year = d.getFullYear();
+
+    if (month.length < 2) month = '0' + month;
+    if (day.length < 2) day = '0' + day;
+
+    return [year, month, day].join('-');
+}
+
 console.log('Server running at http://127.0.0.1:3000/');
