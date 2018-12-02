@@ -1,0 +1,24 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "pbe project",
+  "main": "app.js",
+  "dependencies": {
+    "mongoose": "^5.3.12"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "node app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HectorPascual/pbe-server.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/HectorPascual/pbe-server/issues"
+  },
+  "homepage": "https://github.com/HectorPascual/pbe-server#readme"
+}
