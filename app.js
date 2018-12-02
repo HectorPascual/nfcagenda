@@ -201,6 +201,7 @@ http.createServer(function (req, res) {
 
     case "/timetables":
     res.writeHead(200, {'Content-Type': 'application/json'})
+    var dbquery_repeat
     var limit = 0;
     var gt,lt,lte,gte;
     var query = {};
@@ -259,6 +260,18 @@ http.createServer(function (req, res) {
         }
       }).where("day_number").equals(value_day)
       .sort({hour: 1}).where("hour").gte(value_hour)
+      //QUERY TO REPEAT THE DAYS
+      Timetable.find(query, (err, name) => {
+        if(err) {
+          resdb = {success: "false", msg: name}
+          const responseBody = { headers, method, url, resdb }
+          res.write(JSON.stringify(responseBody),function(err) {
+            res.end();
+          });
+        } else {
+          dbquery_repeat = name
+        }
+      }).sort({day_number: 1}).sort({hour: 1})
 
     }
     var dbquery = Timetable.find(query, (err, name) => {
@@ -270,21 +283,27 @@ http.createServer(function (req, res) {
         });
       } else {
         query_result.push(name)
+        //filling the files of client
+        query_result.push(dbquery_repeat)
+        query_result.push(dbquery_repeat)
         res.write(JSON.stringify(query_result),function(err) {
           res.end();
         });
       }
     });
+
     if (limit) dbquery.limit(limit)
-    if (gt) dbquery.where(gtfield.substring(0,gtfield.indexOf('['))).gt(gt).sort({date: 1})
+    if (gt) dbquery.where(gtfield.substring(0,gtfield.indexOf('['))).gt(gt).sort({day_number: 1})
     if (from_now) {
       dbquery.where("day_number").gt(2).sort({day_number: 1})
+
+
       //if(query_result.length)
     //  dbquery.where("hour").gt(value_hour).sort({hour: 1})
     }
-    if (lt) dbquery.where(ltfield.substring(0,ltfield.indexOf('['))).lt(lt).sort({date: 1})
-    if (gte) dbquery.where(gtefield.substring(0,gtefield.indexOf('['))).gte(gte).sort({date: 1})
-    if (lte) dbquery.where(ltefield.substring(0,ltefield.indexOf('['))).lte(lte).sort({date: 1})
+    if (lt) dbquery.where(ltfield.substring(0,ltfield.indexOf('['))).lt(lt).sort({day_number: 1})
+    if (gte) dbquery.where(gtefield.substring(0,gtefield.indexOf('['))).gte(gte).sort({day_number: 1})
+    if (lte) dbquery.where(ltefield.substring(0,ltefield.indexOf('['))).lte(lte).sort({day_number: 1})
     break;
     default:
       res.writeHead(404, {'Content-Type': 'text/plain'})
