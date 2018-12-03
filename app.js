@@ -117,7 +117,7 @@ http.createServer(function (req, res) {
       //  find({published: true}).sort({'date': -1}).limit(20);
         var dbquery = Task.find(query ,(err, name) => {
           if(err) {
-            resdb = {success: "false", msg: name}
+            resdb = {success: "false", msg: err}
             const responseBody = { headers, method, url, resdb }
             res.write(JSON.stringify(responseBody),function(err) {
               res.end();
@@ -127,13 +127,15 @@ http.createServer(function (req, res) {
               res.end();
             })
         }})
-        if (limit) dbquery.limit(limit)
+        if (limit) dbquery.limit(parseInt(limit))
         if (gt) dbquery.where(gtfield.substring(0,gtfield.indexOf('['))).gt(gt).sort({date: 1})
         if (from_now) dbquery.where("date").gt(value).sort({date: 1})
         if (lt) dbquery.where(ltfield.substring(0,ltfield.indexOf('['))).lt(lt).sort({date: 1})
         if (gte) dbquery.where(gtefield.substring(0,gtefield.indexOf('['))).gte(gte).sort({date: 1})
         if (lte) dbquery.where(ltefield.substring(0,ltefield.indexOf('['))).lte(lte).sort({date: 1})
+        function callback(err, name){
 
+        }
     break;
     case "/marks":
     res.writeHead(200, {'Content-Type': 'application/json'})
