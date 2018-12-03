@@ -162,7 +162,7 @@ http.createServer(function (req, res) {
         console.log(query)
       }
     }
-      var dbquery = Mark.find(query});
+      var dbquery = Mark.find(query);
 
       if (limit) dbquery.limit(parseInt(limit))
       if (gt) dbquery.where(gtfield.substring(0,gtfield.indexOf('['))).gt(gt).sort({date: 1})
