@@ -1,13 +1,14 @@
 var http = require('http');
 var mongoose = require('mongoose');
-const config = require('./config/database');
+var config = require('./config/database');
 var Mark = require('./models/mark_model');
 var Task = require('./models/task_model');
 var Timetable = require('./models/timetable_model');
 var Student = require('./models/student_model');
-
+var utils = require('./utils')
 var uid = "DEF123";
-var i
+
+
 
 mongoose.connect(config.database, { useMongoClient: true});
 // On Connection
@@ -20,260 +21,57 @@ mongoose.connection.on('error', (err) => {
 });
 
 
-//create a server object:
-
 http.createServer(function (req, res) {
-  const { headers, method, url } = req;
+  const { url } = req;
   var from_now = false;
   var array = []
+  var url_def
 
-  if(url.indexOf('?') >= 0){
-    url_def = url.substring(0, url.indexOf('?'));
-    array = url.substring(url.indexOf('?')+1,url.length).split("&");
-  }
-  else {
-    url_def = url
-
-    from_now = true
-  }
+  [url_def,array,from_now] = utils.parseURL(url)
 
   switch (url_def) {
+
     case "/auth":
-      res.writeHead(200, {'Content-Type': 'application/json'})
-      if(uid == null){
-        value = url.substring(url.indexOf('?')+1,url.length);
-        console.log(uid)
-        name = "uid"
-        var query = {};
-        query[name] = value;
-        Student.find(query ,(err, name) => {
-          if(err) {
-            resdb = {success: "false", msg: name}
-            const responseBody = { headers, method, url, resdb }
-            res.write(JSON.stringify(responseBody),function(err) {
-              res.end();
-            });
-          } else {
-            uid = value;
-            res.write(JSON.stringify(name),function(err) {
-              res.end();
-            })
-        }})
-      }
-      else{
-        console.log("Ya has iniciado sesión!")
-      }
+      auth(res,url)
     break;
 
     case "/logout":
-      res.writeHead(200, {'Content-Type': 'application/json'})
-      uid = null
-      console.log(uid)
+      logout(res)
     break;
 
     case "/tasks":
-      res.writeHead(200, {'Content-Type': 'application/json'})
-      var limit = 0;
-      var gt,lt,lte,gte;
-      var query = {};
-      query["uid"] = uid
-      for (i = 0; i < array.length; i++){
-
-        var values = array[i].split("=");
-
-      //  console.log(values)
-        var field = values[0]
-      //  console.log(field)
-        var value = values[1]
-      //  console.log(value)
-        option = field.substring(field.indexOf('[')+1,field.indexOf(']'))
-        if(value == "now") value = formatDate(new Date())
-
-        if(field=="limit"){
-          limit = value;
-        }
-        else if (option.indexOf("gte") >= 0) {
-          var gtefield = field
-          gte = value;
-        }
-        else if (option.indexOf("gt") >= 0) {
-          var gtfield = field
-          gt = value;
-        }
-        else if (option.indexOf("lte") >= 0) {
-          var ltefield = field
-          lte = value;
-        }
-        else if (option.indexOf("lt") >= 0) {
-          var ltfield = field
-          lt = value;
-        }
-        else{
-          query[field] = value;
-          console.log(query)
-        }
-      }
-      if (from_now) value = formatDate(new Date())
-      //  find({published: true}).sort({'date': -1}).limit(20);
-        var dbquery = Task.find(query ,(err, name) => {
-          if(err) {
-            resdb = {success: "false", msg: name}
-            const responseBody = { headers, method, url, resdb }
-            res.write(JSON.stringify(responseBody),function(err) {
-              res.end();
-            });
-          } else {
-            res.write(JSON.stringify(name),function(err) {
-              res.end();
-            })
-        }})
-        if (limit) dbquery.limit(limit)
-        if (gt) dbquery.where(gtfield.substring(0,gtfield.indexOf('['))).gt(gt).sort({date: 1})
-        if (from_now) dbquery.where("date").gt(value).sort({date: 1})
-        if (lt) dbquery.where(ltfield.substring(0,ltfield.indexOf('['))).lt(lt).sort({date: 1})
-        if (gte) dbquery.where(gtefield.substring(0,gtefield.indexOf('['))).gte(gte).sort({date: 1})
-        if (lte) dbquery.where(ltefield.substring(0,ltefield.indexOf('['))).lte(lte).sort({date: 1})
-
+      tasks(res,array,from_now)
     break;
+
     case "/marks":
-    res.writeHead(200, {'Content-Type': 'application/json'})
-    var limit = 0;
-    var gt,lt,lte,gte;
-    var query = {};
-    for (i = 0; i < array.length; i++){
-
-      var values = array[i].split("=");
-
-    //  console.log(values)
-      var field = values[0]
-    //  console.log(field)
-      var value = values[1]
-    //  console.log(value)
-      option = field.substring(field.indexOf('[')+1,field.indexOf(']'))
-      if(field=="limit"){
-        limit = value;
-      }
-      else if (option.indexOf("gte") >= 0) {
-        var gtefield = field
-        gte = value;
-      }
-      else if (option.indexOf("gt") >= 0) {
-        var gtfield = field
-        gt = value;
-      }
-      else if (option.indexOf("lte") >= 0) {
-        var ltefield = field
-        lte = value;
-      }
-      else if (option.indexOf("lt") >= 0) {
-        var ltfield = field
-        lt = value;
-      }
-      else{
-        query[field] = value;
-        console.log(query)
-      }
-    }
-      var dbquery = Mark.find(query, (err, name) => {
-        if(err) {
-          resdb = {success: "false", msg: name}
-          const responseBody = { headers, method, url, resdb }
-          res.write(JSON.stringify(responseBody),function(err) {
-            res.end();
-          });
-        } else {
-          console.log(value)
-          resdb = {success: "true", msg: name}
-          const responseBody = { headers, method, url, resdb}
-          res.write(JSON.stringify(name),function(err) {
-            res.end();
-          });
-        }
-      });
-
-      if (limit) dbquery.limit(limit)
-      if (gt) dbquery.where(gtfield.substring(0,gtfield.indexOf('['))).gt(gt).sort({date: 1})
-      if (lt) dbquery.where(ltfield.substring(0,ltfield.indexOf('['))).lt(lt).sort({date: 1})
-      if (gte) dbquery.where(gtefield.substring(0,gtefield.indexOf('['))).gte(gte).sort({date: 1})
-      if (lte) dbquery.where(ltefield.substring(0,ltefield.indexOf('['))).lte(lte).sort({date: 1})
-      break;
+      marks(res,array,from_now)
+    break;
 
     case "/timetables":
-    res.writeHead(200, {'Content-Type': 'application/json'})
-    var dbquery_repeat
-    var limit = 0;
-    var gt,lt,lte,gte;
+      timetables(res,array,from_now)
+    break;
+
+    default:
+      res.writeHead(404, {'Content-Type': 'text/plain'})
+      res.end("The URL specified does not exist");
+    break;
+  }
+
+}).listen(process.env.PORT || 3000);
+
+// ------------------------------------------------ //
+// --------------- API FUNCTIONS ------------------ //
+// ------------------------------------------------ //
+
+function auth(res,url){
+  res.writeHead(200, {'Content-Type': 'application/json'})
+  if(uid == null){
+    value = url.substring(url.indexOf('?')+1,url.length);
+    console.log(uid)
+    name = "uid"
     var query = {};
-    query["uid"] = uid
-    for (i = 0; i < array.length; i++){
-
-      var values = array[i].split("=");
-
-    //  console.log(values)
-      var field = values[0]
-    //  console.log(field)
-      var value = values[1]
-    //  console.log(value)
-      option = field.substring(field.indexOf('[')+1,field.indexOf(']'))
-      if(value == "now") value = formatDate(new Date())
-      if(field=="limit"){
-        limit = value;
-      }
-      else if (option.indexOf("gte") >= 0) {
-        var gtefield = field
-        gte = value;
-      }
-      else if (option.indexOf("gt") >= 0) {
-        var gtfield = field
-        gt = value;
-      }
-      else if (option.indexOf("lte") >= 0) {
-        var ltefield = field
-        lte = value;
-      }
-      else if (option.indexOf("lt") >= 0) {
-        var ltfield = field
-        lt = value;
-      }
-      else{
-        query[field] = value;
-        console.log(query)
-      }
-    }
-    var query_result = []
-    if (from_now) {
-      var date = new Date()
-      value_day = date.getDay()
-      value_hour = formatHour(date)
-      console.log("!!" + value_day + "!!" + value_hour)
-      var dbquery_today = Timetable.find(query, (err, name) => {
-        if(err) {
-          resdb = {success: "false", msg: name}
-          const responseBody = { headers, method, url, resdb }
-          res.write(JSON.stringify(responseBody),function(err) {
-            res.end();
-          });
-        } else {
-          query_result.push(name)
-
-        }
-      }).where("day_number").equals(value_day)
-      .sort({hour: 1}).where("hour").gte(value_hour)
-      //QUERY TO REPEAT THE DAYS
-      Timetable.find(query, (err, name) => {
-        if(err) {
-          resdb = {success: "false", msg: name}
-          const responseBody = { headers, method, url, resdb }
-          res.write(JSON.stringify(responseBody),function(err) {
-            res.end();
-          });
-        } else {
-          dbquery_repeat = name
-        }
-      }).sort({day_number: 1}).sort({hour: 1})
-
-    }
-    var dbquery = Timetable.find(query, (err, name) => {
+    query[name] = value;
+    Student.find(query ,(err, name) => {
       if(err) {
         resdb = {success: "false", msg: name}
         const responseBody = { headers, method, url, resdb }
@@ -281,62 +79,186 @@ http.createServer(function (req, res) {
           res.end();
         });
       } else {
-        query_result.push(name)
-        //filling the files of client
-        query_result.push(dbquery_repeat)
-        query_result.push(dbquery_repeat)
-        res.write(JSON.stringify(query_result),function(err) {
+        uid = value;
+        res.write(JSON.stringify(name),function(err) {
+          res.end();
+        })
+    }})
+  }
+  else{
+    console.log("Ya has iniciado sesión!")
+    res.end()
+  }
+}
+
+function logout(res){
+  res.writeHead(200, {'Content-Type': 'application/json'})
+  uid = null
+  res.end()
+}
+
+function tasks(res,array,from_now){
+  tasksOrMarks(res,array,from_now,"tasks",Task)
+}
+
+function marks(res,array,from_now){
+  tasksOrMarks(res,array,from_now,"marks",Mark)
+}
+
+function tasksOrMarks(res,array,from_now,caller,model){
+  res.writeHead(200, {'Content-Type': 'application/json'})
+  var limit = 0;
+  var gt,lt,lte,gte;
+  var query = {};
+  query["uid"] = uid
+  for (i = 0; i < array.length; i++){
+
+    var values = array[i].split("=");
+    var field = values[0]
+    var value = values[1]
+  //  console.log(value)
+    option = field.substring(field.indexOf('[')+1,field.indexOf(']'))
+    if(value == "now") value = utils.formatDate(new Date())
+
+    if(field=="limit"){
+      limit = value;
+    }
+    else if (option.indexOf("gte") >= 0) {
+      var gtefield = field
+      gte = value;
+    }
+    else if (option.indexOf("gt") >= 0) {
+      var gtfield = field
+      gt = value;
+    }
+    else if (option.indexOf("lte") >= 0) {
+      var ltefield = field
+      lte = value;
+    }
+    else if (option.indexOf("lt") >= 0) {
+      var ltfield = field
+      lt = value;
+    }
+    else{
+      query[field] = value;
+      console.log(query)
+    }
+  }
+  if (from_now) value = utils.formatDate(new Date())
+
+  var dbquery = model.find(query,(err,name) => {
+    if(err) {
+      res.write(JSON.stringify(err),function(err) {
+        res.end();
+      });
+    } else {
+      res.write(JSON.stringify(name),function(err) {
+        res.end();
+      });
+    }
+  })
+  if (limit) dbquery.limit(parseInt(limit))
+  if (gt) dbquery.where(gtfield.substring(0,gtfield.indexOf('['))).gt(gt).sort({date: 1})
+  if (from_now && caller=="tasks") dbquery.where("date").gt(value).sort({date: 1})
+  if (lt) dbquery.where(ltfield.substring(0,ltfield.indexOf('['))).lt(lt).sort({date: 1})
+  if (gte) dbquery.where(gtefield.substring(0,gtefield.indexOf('['))).gte(gte).sort({date: 1})
+  if (lte) dbquery.where(ltefield.substring(0,ltefield.indexOf('['))).lte(lte).sort({date: 1})
+  if (caller = "marks") dbquery.sort({subject: 1})
+  dbquery.exec()
+}
+
+async function timetables(res,array,from_now){
+  res.writeHead(200, {'Content-Type': 'application/json'})
+  var dbquery_repeat,dbquery_today
+  var limit = 0;
+  var gt,lt,lte,gte;
+  var query = {};
+  query["uid"] = uid
+  for (i = 0; i < array.length; i++){
+
+    var values = array[i].split("=");
+    var field = values[0]
+    var value = values[1]
+
+    option = field.substring(field.indexOf('[')+1,field.indexOf(']'))
+    if(value == "now") value = utils.formatDate(new Date())
+    if(field=="limit"){
+      limit = value;
+    }
+    else if (option.indexOf("gte") >= 0) {
+      var gtefield = field
+      gte = value;
+    }
+    else if (option.indexOf("gt") >= 0) {
+      var gtfield = field
+      gt = value;
+    }
+    else if (option.indexOf("lte") >= 0) {
+      var ltefield = field
+      lte = value;
+    }
+    else if (option.indexOf("lt") >= 0) {
+      var ltfield = field
+      lt = value;
+    }
+    else{
+      query[field] = value;
+      console.log(query)
+    }
+  }
+  var query_result = []
+  var repeat_finished = 0;
+  if (from_now) {
+    var date = new Date()
+    value_day = date.getDay()
+    value_hour = utils.formatHour(date)
+    query_today = await Timetable.find(query, (err, name) => {
+      if(err) {
+        resdb = {success: "false", msg: name}
+        const responseBody = { headers, method, url, resdb }
+        res.write(JSON.stringify(responseBody),function(err) {
           res.end();
         });
+      } else {
+        dbquery_today=name
       }
-    });
+    }).where("day_number").equals(value_day)
+    .sort({hour: 1}).where("hour").gte(value_hour)
+    //QUERY TO REPEAT THE DAYS
+    query_repeat = await Timetable.find(query, (err, name) => {
+      if(err) {
+        resdb = {success: "false", msg: name}
+        const responseBody = { headers, method, url, resdb }
+        res.write(JSON.stringify(responseBody),function(err) {
+          res.end();
+        });
+      } else {
+        dbquery_repeat = name
+      }
+    }).sort({day_number: 1}).sort({hour: 1})
 
-    if (limit) dbquery.limit(limit)
-    if (gt) dbquery.where(gtfield.substring(0,gtfield.indexOf('['))).gt(gt).sort({day_number: 1})
-    if (from_now) {
-      dbquery.where("day_number").gt(2).sort({day_number: 1})
-
-
-      //if(query_result.length)
-    //  dbquery.where("hour").gt(value_hour).sort({hour: 1})
-    }
-    if (lt) dbquery.where(ltfield.substring(0,ltfield.indexOf('['))).lt(lt).sort({day_number: 1})
-    if (gte) dbquery.where(gtefield.substring(0,gtefield.indexOf('['))).gte(gte).sort({day_number: 1})
-    if (lte) dbquery.where(ltefield.substring(0,ltefield.indexOf('['))).lte(lte).sort({day_number: 1})
-    break;
-    default:
-      res.writeHead(404, {'Content-Type': 'text/plain'})
-      res.end("The URL specified does not exist");
-    break;
   }
+  var dbquery = Timetable.find(query, (err, name) => {
+    if(err) {
+      resdb = {success: "false", msg: name}
+      const responseBody = { headers, method, url, resdb }
+      res.write(JSON.stringify(responseBody),function(err) {
+        res.end();
+      });
+    } else {
+      query_result = query_result.concat(dbquery_today, name, dbquery_repeat)
+      res.write(JSON.stringify(query_result),function(err) {
+        res.end();
+      });
+    }
+  });
 
-
-  //res.write(JSON.stringify(responseBody));
-  // Note: the 2 lines above could be replaced with this next one:
-  // response.end(JSON.stringify(responseBody))
-
-  // MANAGE DB QUERIES
-
-}).listen(process.env.PORT || 3000);
-
-function formatDate(date) {
-    var d = new Date(date),
-        month = '' + (d.getMonth() + 1),
-        day = '' + d.getDate(),
-        year = d.getFullYear();
-
-    if (month.length < 2) month = '0' + month;
-    if (day.length < 2) day = '0' + day;
-
-    return [year, month, day].join('-');
+  if (limit) dbquery.limit(parseInt(limit))
+  if (gt) dbquery.where(gtfield.substring(0,gtfield.indexOf('['))).gt(gt).sort({day_number: 1})
+  if (from_now) {
+    dbquery.where("day_number").gt(2).sort({day_number: 1})
+  }
+  if (lt) dbquery.where(ltfield.substring(0,ltfield.indexOf('['))).lt(lt).sort({day_number: 1})
+  if (gte) dbquery.where(gtefield.substring(0,gtefield.indexOf('['))).gte(gte).sort({day_number: 1})
+  if (lte) dbquery.where(ltefield.substring(0,ltefield.indexOf('['))).lte(lte).sort({day_number: 1})
 }
-
-function formatHour(date){
-  str = ("0" + date.getHours()).slice(-2) + ":" +
-   ("0" + date.getMinutes()).slice(-2)
-   return str
-}
-
-
-
-console.log('Server running at http://127.0.0.1:3000/');

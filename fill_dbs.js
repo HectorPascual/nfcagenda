@@ -1,6 +1,6 @@
 var MongoClient = require('mongodb').MongoClient;
 
-var url = "mongodb://localhost:27017/mydb";
+var url = "mongodb://<user>:<admin1>@ds147450.mlab.com:47450/pbe-project";
 
 MongoClient.connect(url, {useNewUrlParser: true}, function(err, db) {
 if (err) throw err;
