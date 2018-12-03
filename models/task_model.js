@@ -3,7 +3,7 @@ const config = require('../config/database');
 
 const TaskSchema = mongoose.Schema ({
   _id: mongoose.Schema.Types.ObjectId,
-  uid: Number,
+  uid: String,
   date: String,
   subject: String,
   name: String,
