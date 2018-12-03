@@ -80,10 +80,7 @@ http.createServer(function (req, res) {
       for (i = 0; i < array.length; i++){
 
         var values = array[i].split("=");
-
-      //  console.log(values)
         var field = values[0]
-      //  console.log(field)
         var value = values[1]
       //  console.log(value)
         option = field.substring(field.indexOf('[')+1,field.indexOf(']'))
@@ -114,28 +111,17 @@ http.createServer(function (req, res) {
         }
       }
       if (from_now) value = formatDate(new Date())
-      //  find({published: true}).sort({'date': -1}).limit(20);
-        var dbquery = Task.find(query ,(err, name) => {
-          if(err) {
-            resdb = {success: "false", msg: err}
-            const responseBody = { headers, method, url, resdb }
-            res.write(JSON.stringify(responseBody),function(err) {
-              res.end();
-            });
-          } else {
-            res.write(JSON.stringify(name),function(err) {
-              res.end();
-            })
-        }})
-        if (limit) dbquery.limit(parseInt(limit))
-        if (gt) dbquery.where(gtfield.substring(0,gtfield.indexOf('['))).gt(gt).sort({date: 1})
-        if (from_now) dbquery.where("date").gt(value).sort({date: 1})
-        if (lt) dbquery.where(ltfield.substring(0,ltfield.indexOf('['))).lt(lt).sort({date: 1})
-        if (gte) dbquery.where(gtefield.substring(0,gtefield.indexOf('['))).gte(gte).sort({date: 1})
-        if (lte) dbquery.where(ltefield.substring(0,ltefield.indexOf('['))).lte(lte).sort({date: 1})
-        function callback(err, name){
 
-        }
+      var dbquery = Task.find(query)
+
+      if (limit) dbquery.limit(parseInt(limit))
+      if (gt) dbquery.where(gtfield.substring(0,gtfield.indexOf('['))).gt(gt).sort({date: 1})
+      if (from_now) dbquery.where("date").gt(value).sort({date: 1})
+      if (lt) dbquery.where(ltfield.substring(0,ltfield.indexOf('['))).lt(lt).sort({date: 1})
+      if (gte) dbquery.where(gtefield.substring(0,gtefield.indexOf('['))).gte(gte).sort({date: 1})
+      if (lte) dbquery.where(ltefield.substring(0,ltefield.indexOf('['))).lte(lte).sort({date: 1})
+      dbquery.exec(generic_callback)
+
     break;
     case "/marks":
     res.writeHead(200, {'Content-Type': 'application/json'})
@@ -176,28 +162,16 @@ http.createServer(function (req, res) {
         console.log(query)
       }
     }
-      var dbquery = Mark.find(query, (err, name) => {
-        if(err) {
-          resdb = {success: "false", msg: name}
-          const responseBody = { headers, method, url, resdb }
-          res.write(JSON.stringify(responseBody),function(err) {
-            res.end();
-          });
-        } else {
-          console.log(value)
-          resdb = {success: "true", msg: name}
-          const responseBody = { headers, method, url, resdb}
-          res.write(JSON.stringify(name),function(err) {
-            res.end();
-          });
-        }
-      });
+      var dbquery = Mark.find(query);
 
-      if (limit) dbquery.limit(limit)
+      if (limit) dbquery.limit(parseInt(limit))
       if (gt) dbquery.where(gtfield.substring(0,gtfield.indexOf('['))).gt(gt).sort({date: 1})
       if (lt) dbquery.where(ltfield.substring(0,ltfield.indexOf('['))).lt(lt).sort({date: 1})
       if (gte) dbquery.where(gtefield.substring(0,gtefield.indexOf('['))).gte(gte).sort({date: 1})
       if (lte) dbquery.where(ltefield.substring(0,ltefield.indexOf('['))).lte(lte).sort({date: 1})
+
+      dbquery.exec(generic_callback)
+
       break;
 
     case "/timetables":
@@ -293,14 +267,10 @@ http.createServer(function (req, res) {
       }
     });
 
-    if (limit) dbquery.limit(limit)
+    if (limit) dbquery.limit(parseInt(limit))
     if (gt) dbquery.where(gtfield.substring(0,gtfield.indexOf('['))).gt(gt).sort({day_number: 1})
     if (from_now) {
       dbquery.where("day_number").gt(2).sort({day_number: 1})
-
-
-      //if(query_result.length)
-    //  dbquery.where("hour").gt(value_hour).sort({hour: 1})
     }
     if (lt) dbquery.where(ltfield.substring(0,ltfield.indexOf('['))).lt(lt).sort({day_number: 1})
     if (gte) dbquery.where(gtefield.substring(0,gtefield.indexOf('['))).gte(gte).sort({day_number: 1})
@@ -310,6 +280,18 @@ http.createServer(function (req, res) {
       res.writeHead(404, {'Content-Type': 'text/plain'})
       res.end("The URL specified does not exist");
     break;
+  }
+
+  function generic_callback(err,name){
+    if(err) {
+      res.write(JSON.stringify(err),function(err) {
+        res.end();
+      });
+    } else {
+      res.write(JSON.stringify(name),function(err) {
+        res.end();
+      });
+    }
   }
 
 
@@ -338,7 +320,5 @@ function formatHour(date){
    ("0" + date.getMinutes()).slice(-2)
    return str
 }
-
-
 
 console.log('Server running at http://127.0.0.1:3000/');
