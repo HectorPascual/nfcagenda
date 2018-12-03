@@ -40,7 +40,7 @@ http.createServer(function (req, res) {
   switch (url_def) {
     case "/auth":
       res.writeHead(200, {'Content-Type': 'application/json'})
-      if(uid == null){
+  //    if(uid == null){
         value = url.substring(url.indexOf('?')+1,url.length);
         console.log(uid)
         name = "uid"
@@ -59,10 +59,10 @@ http.createServer(function (req, res) {
               res.end();
             })
         }})
-      }
-      else{
-        console.log("Ya has iniciado sesión!")
-      }
+  //    }
+    //  else{
+      //  console.log("Ya has iniciado sesión!")
+    //  }
     break;
 
     case "/logout":
