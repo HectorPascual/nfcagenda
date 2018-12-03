@@ -4,7 +4,7 @@ const config = require('../config/database');
 // User Schema
 const MarkSchema = mongoose.Schema ({
   _id: mongoose.Schema.Types.ObjectId,
-  uid : Number,
+  uid : String,
   subject: String,
   name: String,
   mark: Number,
