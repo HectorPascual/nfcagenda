@@ -127,7 +127,7 @@ http.createServer(function (req, res) {
               res.end();
             })
         }})
-        if (limit) dbquery.limit(limit)
+        if (limit) dbquery.limit(parseInt(limit))
         if (gt) dbquery.where(gtfield.substring(0,gtfield.indexOf('['))).gt(gt).sort({date: 1})
         if (from_now) dbquery.where("date").gt(value).sort({date: 1})
         if (lt) dbquery.where(ltfield.substring(0,ltfield.indexOf('['))).lt(lt).sort({date: 1})
