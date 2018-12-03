@@ -65,7 +65,7 @@ http.createServer(function (req, res) {
 
 function auth(res,url){
   res.writeHead(200, {'Content-Type': 'application/json'})
-  if(uid == null){
+//  if(uid == null){
     value = url.substring(url.indexOf('?')+1,url.length);
     console.log(uid)
     name = "uid"
@@ -84,11 +84,11 @@ function auth(res,url){
           res.end();
         })
     }})
-  }
-  else{
-    console.log("Ya has iniciado sesión!")
-    res.end()
-  }
+//  }
+//  else{
+//    console.log("Ya has iniciado sesión!")
+//    res.end()
+//  }
 }
 
 function logout(res){
@@ -98,6 +98,7 @@ function logout(res){
 }
 
 function tasks(res,array,from_now){
+
   tasksOrMarks(res,array,from_now,"tasks",Task)
 }
 
@@ -116,10 +117,10 @@ function tasksOrMarks(res,array,from_now,caller,model){
     var values = array[i].split("=");
     var field = values[0]
     var value = values[1]
-  //  console.log(value)
+
     option = field.substring(field.indexOf('[')+1,field.indexOf(']'))
     if(value == "now") value = utils.formatDate(new Date())
-
+    console.log("k")
     if(field=="limit"){
       limit = value;
     }
