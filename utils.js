@@ -26,6 +26,8 @@ function parseURL(url){
   if(url.indexOf('?') >= 0){
     url_def = url.substring(0, url.indexOf('?'));
     array = url.substring(url.indexOf('?')+1,url.length).split("&");
+    if(url.charAt(url.indexOf('?')+1) == 'l' && array.length == 1) from_now = true;
+    else from_now = false
   }
   else {
     url_def = url
@@ -34,8 +36,31 @@ function parseURL(url){
   return [url_def,array,from_now]
 }
 
+function parseDay(day){
+  switch(day){
+    case "Mon" :
+      return 1
+    break;
+    case "Tue" :
+      return 2
+    break;
+    case "Wed" :
+      return 3
+    break;
+    case "Thu" :
+      return 4
+    break;
+    case "Fri" :
+      return 5
+    break;
+    default :
+    break;
+  }
+}
+
 module.exports = {
     formatDate: formatDate,
     formatHour: formatHour,
-    parseURL: parseURL
+    parseURL: parseURL,
+    parseDay: parseDay
 };

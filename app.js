@@ -182,7 +182,13 @@ async function timetables(res,array,from_now){
     var value = values[1]
 
     option = field.substring(field.indexOf('[')+1,field.indexOf(']'))
-    if(value == "now") value = utils.formatDate(new Date())
+
+    if(field.indexOf("day[") >= 0 ) {
+      field = "day_number["
+      if(value!="now") value = utils.parseDay(value)
+      else value = (new Date()).getDay()
+    }
+
     if(field=="limit"){
       limit = value;
     }
@@ -193,6 +199,7 @@ async function timetables(res,array,from_now){
     else if (option.indexOf("gt") >= 0) {
       var gtfield = field
       gt = value;
+      console.log("!!!!!!!!!!!!!!!!!" + gt)
     }
     else if (option.indexOf("lte") >= 0) {
       var ltefield = field
@@ -208,7 +215,6 @@ async function timetables(res,array,from_now){
     }
   }
   var query_result = []
-  var repeat_finished = 0;
   if (from_now) {
     var date = new Date()
     value_day = date.getDay()
@@ -236,7 +242,20 @@ async function timetables(res,array,from_now){
       } else {
         dbquery_repeat = name
       }
-    }).sort({day_number: 1}).sort({hour: 1})
+    }).sort({day_number: 1}).sort({hour: 1}).where("day_number").lt(value_day)
+
+    query_repeat_hour = await Timetable.find(query, (err, name) => {
+     if(err) {
+       resdb = {success: "false", msg: name}
+       const responseBody = { headers, method, url, resdb }
+       res.write(JSON.stringify(responseBody),function(err) {
+         res.end();
+       });
+     } else {
+       dbquery_today_hour=name
+     }
+   }).where("day_number").equals(value_day)
+   .sort({hour: 1}).where("hour").lt(value_hour)
 
   }
   var dbquery = Timetable.find(query, (err, name) => {
@@ -247,14 +266,20 @@ async function timetables(res,array,from_now){
         res.end();
       });
     } else {
-      query_result = query_result.concat(dbquery_today, name, dbquery_repeat)
+      if(from_now){
+        query_result = query_result.concat(dbquery_today, name, dbquery_repeat,dbquery_today_hour)
+        if(limit) {
+          query_result = query_result.slice(0,limit)
+        }
+      }
+      else query_result = name
       res.write(JSON.stringify(query_result),function(err) {
         res.end();
       });
     }
   }).sort({day_number: 1}).sort({hour: 1})
 
-  if (limit) dbquery.limit(parseInt(limit))
+  if (limit && !from_now) dbquery.limit(parseInt(limit))
   if (gt) dbquery.where(gtfield.substring(0,gtfield.indexOf('['))).gt(gt).sort({day_number: 1})
   if (from_now) {
     dbquery.where("day_number").gt(2).sort({day_number: 1})
