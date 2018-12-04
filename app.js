@@ -6,7 +6,7 @@ var Task = require('./models/task_model');
 var Timetable = require('./models/timetable_model');
 var Student = require('./models/student_model');
 var utils = require('./utils')
-var uid = "DEF123";
+var uid = null;
 
 
 
@@ -252,7 +252,7 @@ async function timetables(res,array,from_now){
         res.end();
       });
     }
-  });
+  }).sort({day_number: 1}).sort({hour: 1})
 
   if (limit) dbquery.limit(parseInt(limit))
   if (gt) dbquery.where(gtfield.substring(0,gtfield.indexOf('['))).gt(gt).sort({day_number: 1})
