@@ -6,9 +6,8 @@ var Task = require('./models/task_model');
 var Timetable = require('./models/timetable_model');
 var Student = require('./models/student_model');
 var utils = require('./utils')
+
 var uid = null;
-
-
 
 mongoose.connect(config.database, { useMongoClient: true});
 // On Connection
@@ -64,31 +63,29 @@ http.createServer(function (req, res) {
 // ------------------------------------------------ //
 
 function auth(res,url){
-  res.writeHead(200, {'Content-Type': 'application/json'})
-//  if(uid == null){
+  if(uid == null){
     value = url.substring(url.indexOf('?')+1,url.length);
-    console.log(uid)
     name = "uid"
     var query = {};
     query[name] = value;
     Student.find(query ,(err, name) => {
       if(err) {
-        resdb = {success: "false", msg: name}
-        const responseBody = { headers, method, url, resdb }
-        res.write(JSON.stringify(responseBody),function(err) {
+        res.writeHead(401, {'Content-Type': 'application/json'})
+        res.write(JSON.stringify(err),function(err) {
           res.end();
         });
       } else {
         uid = value;
+        res.writeHead(200, {'Content-Type': 'application/json'})
         res.write(JSON.stringify(name),function(err) {
           res.end();
         })
     }})
-//  }
-//  else{
-//    console.log("Ya has iniciado sesión!")
-//    res.end()
-//  }
+  }
+  else{
+    console.log("Ya has iniciado sesión!")
+    res.end()
+  }
 }
 
 function logout(res){
