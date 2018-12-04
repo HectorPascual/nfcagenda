@@ -184,6 +184,9 @@ async function timetables(res,array,from_now){
       field = "day_number["
       if(value!="now") value = utils.parseDay(value)
       else value = (new Date()).getDay()
+    }else if(value=="now" && field.indexOf("day") >= 0 ){
+      field = "day_number"
+      value = (new Date()).getDay()
     }
 
     if(field=="limit"){
