@@ -1,10 +1,13 @@
+# NFC AGENDA
+
 Client/Server Application that connects to hosted MongoDB database and manages student tasks,marks and timetables.
 
+```
 CLIENT/
 ├── Client.rb
 └── UserInterface.rb
-
-    
+```
+```
 SERVER/
 ├── config/
 │   ├── bootstrap.css
@@ -17,8 +20,15 @@ SERVER/
 ├── node_modules/
 │   └── ...
 │   
-├── app.js
+├── app.js 
 ├── fill_dbs.js
 ├── package-lock.json
 ├── package.json
 └── utils.js
+```
+
+### DEMO IMAGES
+
+![ScreenShot](login.jpg)
+
+![ScreenShot](table.jpg)
