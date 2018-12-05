@@ -1,5 +1,5 @@
 # NFC AGENDA
-<img src="LOGO.jpg" width="40%">
+<img src="LOGO.jpg" style="max-height:450px; max-width:450px; overflow: hidden">
 Client/Server Application that connects to hosted MongoDB database and manages student tasks,marks and timetables.
 
 #### SERVER URL : ds245680.mlab.com:45680/pbe
