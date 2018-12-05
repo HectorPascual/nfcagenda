@@ -1,5 +1,5 @@
 # NFC AGENDA
-![ScreenShot](LOGO.jpg=400x400)
+![ScreenShot](LOGO.jpg =400x400)
 
 Client/Server Application that connects to hosted MongoDB database and manages student tasks,marks and timetables.
 
