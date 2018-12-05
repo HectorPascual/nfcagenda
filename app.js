@@ -68,7 +68,7 @@ function auth(res,url){
     name = "uid"
     var query = {};
     query[name] = value;
-    Student.find(query ,(err, name) => {
+    Student.find(query ,(err, docs) => {
       if(err) {
         res.writeHead(401, {'Content-Type': 'application/json'})
         res.write(JSON.stringify(err),function(err) {
@@ -77,7 +77,7 @@ function auth(res,url){
       } else {
         uid = value;
         res.writeHead(200, {'Content-Type': 'application/json'})
-        res.write(JSON.stringify(name),function(err) {
+        res.write(JSON.stringify(docs),function(err) {
           res.end();
         })
     }})
@@ -144,13 +144,13 @@ function tasksOrMarks(res,array,from_now,caller,model){
   }
   if (from_now) value = utils.formatDate(new Date())
 
-  var dbquery = model.find(query,(err,name) => {
+  var dbquery = model.find(query,(err,docs) => {
     if(err) {
       res.write(JSON.stringify(err),function(err) {
         res.end();
       });
     } else {
-      res.write(JSON.stringify(name),function(err) {
+      res.write(JSON.stringify(docs),function(err) {
         res.end();
       });
     }
@@ -219,60 +219,60 @@ async function timetables(res,array,from_now){
     var date = new Date()
     value_day = date.getDay()
     value_hour = utils.formatHour(date)
-    query_today = await Timetable.find(query, (err, name) => {
+    query_today = await Timetable.find(query, (err, docs) => {
       if(err) {
-        resdb = {success: "false", msg: name}
+        resdb = {success: "false", msg: docs}
         const responseBody = { headers, method, url, resdb }
         res.write(JSON.stringify(responseBody),function(err) {
           res.end();
         });
       } else {
-        dbquery_today=name
+        dbquery_today=docs
       }
     }).where("day_number").equals(value_day)
     .sort({hour: 1}).where("hour").gte(value_hour)
     //QUERY TO REPEAT THE DAYS
-    query_repeat = await Timetable.find(query, (err, name) => {
+    query_repeat = await Timetable.find(query, (err, docs) => {
       if(err) {
-        resdb = {success: "false", msg: name}
+        resdb = {success: "false", msg: docs}
         const responseBody = { headers, method, url, resdb }
         res.write(JSON.stringify(responseBody),function(err) {
           res.end();
         });
       } else {
-        dbquery_repeat = name
+        dbquery_repeat = docs
       }
     }).sort({day_number: 1}).sort({hour: 1}).where("day_number").lt(value_day)
 
-    query_repeat_hour = await Timetable.find(query, (err, name) => {
+    query_repeat_hour = await Timetable.find(query, (err, docs) => {
      if(err) {
-       resdb = {success: "false", msg: name}
+       resdb = {success: "false", msg: docs}
        const responseBody = { headers, method, url, resdb }
        res.write(JSON.stringify(responseBody),function(err) {
          res.end();
        });
      } else {
-       dbquery_today_hour=name
+       dbquery_today_hour=docs
      }
    }).where("day_number").equals(value_day)
    .sort({hour: 1}).where("hour").lt(value_hour)
 
   }
-  var dbquery = Timetable.find(query, (err, name) => {
+  var dbquery = Timetable.find(query, (err, docs) => {
     if(err) {
-      resdb = {success: "false", msg: name}
+      resdb = {success: "false", msg: docs}
       const responseBody = { headers, method, url, resdb }
       res.write(JSON.stringify(responseBody),function(err) {
         res.end();
       });
     } else {
       if(from_now){
-        query_result = query_result.concat(dbquery_today, name, dbquery_repeat,dbquery_today_hour)
+        query_result = query_result.concat(dbquery_today, docs, dbquery_repeat,dbquery_today_hour)
         if(limit) {
           query_result = query_result.slice(0,limit)
         }
       }
-      else query_result = name
+      else query_result = docs
       res.write(JSON.stringify(query_result),function(err) {
         res.end();
       });
