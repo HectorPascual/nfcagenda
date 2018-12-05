@@ -9,21 +9,26 @@ $jsontype # 0 tasks 1 timetable 2 marks
 class Connection
   include HTTParty
   #base_uri la direcció url basica sense cap query
-  base_uri 'http://localhost:3000'
+  base_uri 'http://pbe-project.herokuapp.com/'
 
   #Constructor de la clase que envia un get amb les dades del uid
   def initialize(data)
-    self.class.get(data)
+    @response=self.class.get(data)
+  end
+
+  def get_username
+    json=JSON.parse(@response.body)
+    return json[0]['name']
   end
 end
 
 #La clase getter permet enviar el querys i els analitza
 class Getter
   include HTTParty
-  base_uri 'http://localhost:3000'
+  base_uri 'http://pbe-project.herokuapp.com/'
 
   #Funció que encapsula el getter i el analitzador del query
-  def repo(query)
+  def send_query(query)
     analizequery(query)
     self.class.get(query)
   end
@@ -35,14 +40,14 @@ class Getter
     #Al query el primer que s'escriu es el tipus i després un ? per això fem
     #un split del string i comprovem que coincideix amb el que volem
     arrayquery = query.split('?')
-    if arrayquery[0].eql? '/tasks'|| query=='/tasks'
+    if arrayquery[0].eql? '/tasks' || query=='/tasks'
       $jsontype = 0
     elsif arrayquery[0].eql? '/timetables' || query=='/timetables'
       $jsontype = 1
     elsif arrayquery[0].eql? '/marks' || query=='/marks'
       $jsontype = 2
     else
-      puts 'Please insert a valid query'
+	puts ""
     end
   end
 end
@@ -84,7 +89,7 @@ class JsonMatrix
         if i==0 #Quan es la primera fila s'afegeixen els tags a la matriu
           jsonArrayColumns[j] = @firstRow[j]
         else
-				  jsonArrayColumns[j] = @jsonObject[i-1][@firstRow[j]]
+				  jsonArrayColumns[j] = @jsonObject[i-1][@firstRow[j]].to_s
         end
 			end
 			jsonArray[i] = jsonArrayColumns
@@ -93,21 +98,3 @@ class JsonMatrix
   end
 
 end
-
-#Es realitza la conexió amb el servidor passant-l'hi el uid de l'usuari
-# server = Connection.new("/auth?ABC123")
-
-getter = Getter.new
-#S'envia el query al servidor i s'emmagatzema la seva resposta
-repositorio = getter.repo('/marks')
-
-#Es parsean les dades i es crea un Json
-json = JSON.parse(repositorio.body)
-
-#pp json[1]['date']
-
-#A partir del Json es crea una matriu amb totes les dades
-jsonMatrix = JsonMatrix.new(json)
-m1 = jsonMatrix.createMatrix
-
-pp m1
