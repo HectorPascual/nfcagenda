@@ -20,7 +20,7 @@ SERVER/
 ├── node_modules/
 │   └── ...
 │   
-├── app.js
+├── app.js 
 ├── fill_dbs.js
 ├── package-lock.json
 ├── package.json
