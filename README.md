@@ -6,7 +6,6 @@ Client/Server Application that connects to hosted MongoDB database and manages s
 ```
 $ cd server
 $ npm start
-
 ```
 
 ### PROJECT STRUCTURE
