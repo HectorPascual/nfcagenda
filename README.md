@@ -29,6 +29,6 @@ SERVER/
 
 ### DEMO IMAGES
 
-![ScreenShot](login.jpg)
+![ScreenShot](login.png)
 
-![ScreenShot](table.jpg)
+![ScreenShot](table.png)
