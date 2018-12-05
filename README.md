@@ -2,6 +2,9 @@
 
 Client/Server Application that connects to hosted MongoDB database and manages student tasks,marks and timetables.
 
+#### SERVER URL : ds245680.mlab.com:45680/pbe
+#### DB URL : http://pbe-project.herokuapp.com/
+
 ### TO RUN SERVER IN LOCAL 
 ```
 $ cd server
