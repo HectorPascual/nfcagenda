@@ -26,6 +26,7 @@ http.createServer(function (req, res) {
   var array = []
   var url_def
 
+  res.setHeader('Access-Control-Allow-Origin', '*');
   [url_def,array,from_now] = utils.parseURL(url)
 
   switch (url_def) {
