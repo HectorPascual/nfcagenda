@@ -283,7 +283,7 @@ async function timetables(res,array,from_now){
   if (limit && !from_now) dbquery.limit(parseInt(limit))
   if (gt) dbquery.where(gtfield.substring(0,gtfield.indexOf('['))).gt(gt).sort({day_number: 1})
   if (from_now) {
-    dbquery.where("day_number").gt(2).sort({day_number: 1})
+    dbquery.where("day_number").gt(value_day).sort({day_number: 1})
   }
   if (lt) dbquery.where(ltfield.substring(0,ltfield.indexOf('['))).lt(lt).sort({day_number: 1})
   if (gte) dbquery.where(gtefield.substring(0,gtefield.indexOf('['))).gte(gte).sort({day_number: 1})
