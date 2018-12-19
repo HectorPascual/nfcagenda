@@ -15,8 +15,9 @@ $ npm start
 
 ```
 CLIENT/
-├── Client.rb
-└── UserInterface.rb
+├── Application.rb
+├── RFID.rb
+└── HttpRequest.rb
 ```
 ```
 SERVER/
