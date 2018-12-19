@@ -1,7 +1,8 @@
 require 'gtk3'
 require 'nfc'
 require 'facets/timer'
-require './Client'
+require './RFID'
+require './HttpRequest'
 
 #Definition of global constants
 $blue = Gdk::RGBA::new(0,0,1,1)
@@ -11,7 +12,9 @@ $red = Gdk::RGBA::new(1,0,0,1)
 $green = Gdk::RGBA::new(0,1,0,1)
 $white = Gdk::RGBA::new(1,1,1,1)
 
-class UserInterface < Gtk::Application
+$baseURI = "http://pbe-project.herokuapp.com"
+
+class Application < Gtk::Application
 
 	def initialize
 
@@ -25,22 +28,21 @@ class UserInterface < Gtk::Application
 			@identi_screen=create_identi_screen()
 			@principal_screen=create_principal_screen()
 
-			#We initialize the NFC reader
-			@mutex = Mutex.new
-			@cv = ConditionVariable.new
-			start_reading
-
 			#We create the timer but we don't start it
 			@timer=define_countdown
 
 			#We define the basic signals that we will have
 			define_logout_button_signal
 			define_entry_escribir_signal
-			define_win_signal
 
-			#Finally we add the identification screen and show the content
-			@window.add(@identi_screen)
-			@window.show_all
+			#We initialize the NFC reader
+			@RFID=Rfid.new
+			start_reading
+
+			# Here we ensure that the user is not already logged, and we
+			# ensure that the identi_screen is shown
+			HttpRequest::get($baseURI+"/logout",method(:update_identi_screen))
+
 		end
 	end
 
@@ -105,36 +107,14 @@ class UserInterface < Gtk::Application
 		return grid
 	end
 
-	def start_reading
-		thr = Thread.new(function=method(:update_principal_screen)) do
-		  loop do
-		    uid = readUID
-		    @mutex.synchronize {
-					username = send_uid(uid.to_s)
-					function.call(username)
-		      @cv.wait(@mutex)
-		    }
-		  end
-		end
-	end
-
 	def define_logout_button_signal
 		@principal_screen.get_child_at(2,0).signal_connect "clicked" do |_widget|
 			@timer.stop
 
-			getter = Getter.new
-			getter.send_query("/logout")
+      HttpRequest::get($baseURI+"/logout",method(:update_identi_screen))
 
-			update_identi_screen
 		end
 
-	end
-
-	def define_win_signal
-		@window.signal_connect "destroy" do |_widget|
-			getter=Getter.new
-			getter.send_query("/logout")
-		end
 	end
 
 	def define_entry_escribir_signal
@@ -149,80 +129,64 @@ class UserInterface < Gtk::Application
 
 			input=entry_escribir.text
 
-			th = Thread.new(function=method(:update_table)){
-				data=get_data(input)
-				table=create_table(data)
-				function.call(table,input,data,label_titulo)
-			}
-
-		end
-	end
-
-	def update_identi_screen
-		@window.remove(@principal_screen)
-		@window.add(@identi_screen)
-		@window.show_all
-		if(@principal_screen.get_child_at(0,4)!=nil)
-			@principal_screen.remove(@principal_screen.get_child_at(0,4))
-		end
-
-		@cv.signal
-	end
-
-	def update_table(table,input,data,label_titulo)
-		if input.include? "marks"
+			if input.include? "marks"
+        @query="marks"
 				label_titulo.set_text("MARKS")
 			elsif input.include? "timetables"
+        @query="timetables"
 				label_titulo.set_text("TIMETABLES")
 			elsif input.include? "tasks"
+        @query="tasks"
 				label_titulo.set_text("TASKS")
+			else
+				@query="ERROR"
+				label_titulo.set_text("ERROR")
+			end
+
+      HttpRequest::get($baseURI+"/"+"#{input}", method(:create_table))
+
+
 		end
-		
-		@principal_screen.attach(table,0,4,4,1)
-		@window.show_all
 	end
 
-	def set_principal_username(username)
-		@principal_screen.get_child_at(1,0).set_text("#{username}")
-	end
-
-	def update_principal_screen(username)
-
-		@timer.reset
-		@timer.start
-
-		@window.remove(@identi_screen)
-
-		set_principal_username(username)
-
-		@principal_screen.get_child_at(0,2).text=""
-		@principal_screen.get_child_at(0,3).text=""
-
-		@window.add(@principal_screen)
-		@window.show_all
-
-	end
-
-	def get_data(input)
-		#Send Get
-		numFilas=5
-		numCol=4
-
-		getter = Getter.new
-		response = getter.send_query("/#{input}")
-
-		return JsonMatrix.new(JSON.parse(response.body)).createMatrix
-
-	end
-
-	def create_table(data)
+	def create_table(json)
+		puts "Entering create_table"
 		if(@principal_screen.get_child_at(0,4)!=nil)
 			@principal_screen.remove(@principal_screen.get_child_at(0,4))
 		end
+
+    #Define first row
+    if @query=="tasks"
+      matrixColumn = 3
+      firstRow = ['date', 'subject', 'name']
+    elsif @query=="marks"
+      matrixColumn = 3
+      firstRow = ['subject', 'name', 'mark']
+    elsif @query=="timetables"
+      matrixColumn = 4
+      firstRow = ['day', 'hour', 'subject', 'room']
+    end
+
+		matrixRow=json.length()+1
+    #create a matrix from the JSON
+    matrix = Array.new(matrixRow)
+		for i in 0..matrixRow-1
+			jsonArrayColumns = Array.new(matrixColumn)
+			for j in 0..matrixColumn-1
+        if i==0 #Quan es la primera fila s'afegeixen els tags a la matriu
+          jsonArrayColumns[j] = firstRow[j]
+        else
+				  jsonArrayColumns[j] = json[i-1][firstRow[j]].to_s
+        end
+			end
+			matrix[i] = jsonArrayColumns
+		end
+
+    #create the table from the matrix
 		table= Gtk::Table.new(500,500,false)
-		for i in 0..data.length-1
-			for j in 0..data[i].length-1
-				cell=Gtk::Label.new(data[i][j])
+		for i in 0..matrix.length-1
+			for j in 0..matrix[i].length-1
+				cell=Gtk::Label.new(matrix[i][j])
 				table.attach(cell,j,j+1,i,i+1)
 				if i==0
 					cell.override_color(:normal, $green)
@@ -235,17 +199,63 @@ class UserInterface < Gtk::Application
 			end
 		end
 
-		return table
+		@principal_screen.attach(table,0,4,4,1)
+		@window.show_all
+
+	end
+
+	def start_reading
+		GLib::Idle.add do
+			@RFID.start_reading(method(:get_username))
+			GLib::Source::REMOVE
+		end
+	end
+
+	def get_username(uid)
+		puts uid
+		HttpRequest::get($baseURI+"/auth?"+"#{uid}", method(:update_principal_screen))
+	end
+
+	def update_principal_screen(usernameJSON)
+		puts "entro a update_principal_screen"
+
+		username = usernameJSON[0]['name']
+		puts username
+
+		@timer.reset
+		@timer.start
+
+		@window.remove(@identi_screen)
+
+		@principal_screen.get_child_at(1,0).set_text("#{username}")
+
+		@principal_screen.get_child_at(0,2).text=""
+		@principal_screen.get_child_at(0,3).text=""
+
+		@window.add(@principal_screen)
+		@window.show_all
+
+	end
+
+	def update_identi_screen
+		begin
+			@window.remove(@principal_screen)
+		ensure
+			@window.add(@identi_screen)
+			@window.show_all
+			if(@principal_screen.get_child_at(0,4)!=nil)
+				@principal_screen.remove(@principal_screen.get_child_at(0,4))
+			end
+
+	    start_reading
+		end
 	end
 
 	def define_countdown
 		t = Timer.new(60){
 			puts "logout"
 
-			update_identi_screen
-
-			getter = Getter.new
-			getter.send_query("/logout")
+			HttpRequest::get($baseURI+"/logout",method(:update_identi_screen))
 
 		}
 		return t
@@ -257,12 +267,7 @@ class UserInterface < Gtk::Application
 		return username
 	end
 
-	def readUID
-	  ctx=NFC::Context.new
-	  dev=ctx.open nil
-	  dev.select
-	end
 end
 
-app=UserInterface.new
+app=Application.new
 app.run([$0]+ARGV)
